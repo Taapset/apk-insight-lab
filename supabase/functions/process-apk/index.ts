@@ -211,12 +211,12 @@ serve(async (req) => {
       .update({ progress: 70 })
       .eq('id', jobId);
 
-    // Step 7: Call Lovable AI for report generation
-    console.log('Generating AI report...');
+    // Step 7: Call OpenAI for report generation (using user's API key)
+    console.log('Generating AI report with OpenAI...');
 
-    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
-    if (!lovableApiKey) {
-      throw new Error('LOVABLE_API_KEY not found');
+    const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
+    if (!openaiApiKey) {
+      throw new Error('OPENAI_API_KEY not found');
     }
 
     const analysisContext = {
@@ -250,14 +250,16 @@ Focus on:
 
 Provide a comprehensive security assessment.`;
 
-    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    const aiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${lovableApiKey}`,
+        'Authorization': `Bearer ${openaiApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'gpt-4o-mini', // Cheapest OpenAI model
+        max_tokens: 1500,
+        temperature: 0.7,
         messages: [
           {
             role: 'system',
@@ -272,13 +274,12 @@ Provide a comprehensive security assessment.`;
     });
 
     if (!aiResponse.ok) {
+      const errorText = await aiResponse.text();
+      console.error('OpenAI API error:', aiResponse.status, errorText);
       if (aiResponse.status === 429) {
-        throw new Error('AI rate limit exceeded. Please try again later.');
+        throw new Error('OpenAI rate limit exceeded. Please try again later.');
       }
-      if (aiResponse.status === 402) {
-        throw new Error('AI credits exhausted. Please add credits to your workspace.');
-      }
-      throw new Error(`AI API error: ${aiResponse.status}`);
+      throw new Error(`OpenAI API error: ${aiResponse.status} - ${errorText}`);
     }
 
     const aiData = await aiResponse.json();
