@@ -198,6 +198,268 @@ export type Database = {
           },
         ]
       }
+      job_threat_actor_links: {
+        Row: {
+          confidence_score: number | null
+          created_at: string | null
+          evidence: Json | null
+          id: string
+          job_id: string | null
+          threat_actor_id: string | null
+        }
+        Insert: {
+          confidence_score?: number | null
+          created_at?: string | null
+          evidence?: Json | null
+          id?: string
+          job_id?: string | null
+          threat_actor_id?: string | null
+        }
+        Update: {
+          confidence_score?: number | null
+          created_at?: string | null
+          evidence?: Json | null
+          id?: string
+          job_id?: string | null
+          threat_actor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_threat_actor_links_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "analysis_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_threat_actor_links_threat_actor_id_fkey"
+            columns: ["threat_actor_id"]
+            isOneToOne: false
+            referencedRelation: "threat_actors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      network_intelligence: {
+        Row: {
+          associated_malware: string[] | null
+          domain: string | null
+          first_seen: string | null
+          id: string
+          ip_address: unknown
+          is_malicious: boolean | null
+          last_seen: string | null
+          metadata: Json | null
+          port: number | null
+          protocol: string | null
+          threat_score: number | null
+        }
+        Insert: {
+          associated_malware?: string[] | null
+          domain?: string | null
+          first_seen?: string | null
+          id?: string
+          ip_address?: unknown
+          is_malicious?: boolean | null
+          last_seen?: string | null
+          metadata?: Json | null
+          port?: number | null
+          protocol?: string | null
+          threat_score?: number | null
+        }
+        Update: {
+          associated_malware?: string[] | null
+          domain?: string | null
+          first_seen?: string | null
+          id?: string
+          ip_address?: unknown
+          is_malicious?: boolean | null
+          last_seen?: string | null
+          metadata?: Json | null
+          port?: number | null
+          protocol?: string | null
+          threat_score?: number | null
+        }
+        Relationships: []
+      }
+      security_incidents: {
+        Row: {
+          assigned_to: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          incident_type: string
+          job_id: string | null
+          metadata: Json | null
+          resolved_at: string | null
+          severity: Database["public"]["Enums"]["threat_level"]
+          status: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          incident_type: string
+          job_id?: string | null
+          metadata?: Json | null
+          resolved_at?: string | null
+          severity: Database["public"]["Enums"]["threat_level"]
+          status?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          assigned_to?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          incident_type?: string
+          job_id?: string | null
+          metadata?: Json | null
+          resolved_at?: string | null
+          severity?: Database["public"]["Enums"]["threat_level"]
+          status?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "security_incidents_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "analysis_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      threat_actors: {
+        Row: {
+          aliases: string[] | null
+          created_at: string | null
+          description: string | null
+          first_seen: string | null
+          id: string
+          indicators: Json | null
+          last_seen: string | null
+          metadata: Json | null
+          name: string
+          threat_level: Database["public"]["Enums"]["threat_level"] | null
+          total_samples: number | null
+          ttps: Json | null
+        }
+        Insert: {
+          aliases?: string[] | null
+          created_at?: string | null
+          description?: string | null
+          first_seen?: string | null
+          id?: string
+          indicators?: Json | null
+          last_seen?: string | null
+          metadata?: Json | null
+          name: string
+          threat_level?: Database["public"]["Enums"]["threat_level"] | null
+          total_samples?: number | null
+          ttps?: Json | null
+        }
+        Update: {
+          aliases?: string[] | null
+          created_at?: string | null
+          description?: string | null
+          first_seen?: string | null
+          id?: string
+          indicators?: Json | null
+          last_seen?: string | null
+          metadata?: Json | null
+          name?: string
+          threat_level?: Database["public"]["Enums"]["threat_level"] | null
+          total_samples?: number | null
+          ttps?: Json | null
+        }
+        Relationships: []
+      }
+      threat_intel_feeds: {
+        Row: {
+          first_seen: string | null
+          id: string
+          ioc_type: string
+          ioc_value: string
+          last_seen: string | null
+          malware_family: string | null
+          metadata: Json | null
+          severity: Database["public"]["Enums"]["threat_level"] | null
+          source: string | null
+          threat_actor: string | null
+        }
+        Insert: {
+          first_seen?: string | null
+          id?: string
+          ioc_type: string
+          ioc_value: string
+          last_seen?: string | null
+          malware_family?: string | null
+          metadata?: Json | null
+          severity?: Database["public"]["Enums"]["threat_level"] | null
+          source?: string | null
+          threat_actor?: string | null
+        }
+        Update: {
+          first_seen?: string | null
+          id?: string
+          ioc_type?: string
+          ioc_value?: string
+          last_seen?: string | null
+          malware_family?: string | null
+          metadata?: Json | null
+          severity?: Database["public"]["Enums"]["threat_level"] | null
+          source?: string | null
+          threat_actor?: string | null
+        }
+        Relationships: []
+      }
+      uploader_tracking: {
+        Row: {
+          created_at: string | null
+          device_info: Json | null
+          geolocation: Json | null
+          id: string
+          ip_address: unknown
+          job_id: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          device_info?: Json | null
+          geolocation?: Json | null
+          id?: string
+          ip_address?: unknown
+          job_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          device_info?: Json | null
+          geolocation?: Json | null
+          id?: string
+          ip_address?: unknown
+          job_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "uploader_tracking_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "analysis_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string | null

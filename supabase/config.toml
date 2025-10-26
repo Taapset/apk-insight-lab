@@ -2,3 +2,6 @@ project_id = "omtfesefipenrtvtynrl"
 
 [functions.process-apk]
 verify_jwt = false
+
+[functions.send-alert]
+verify_jwt = false

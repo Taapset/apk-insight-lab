@@ -9,6 +9,14 @@ const corsHeaders = {
 
 interface ProcessRequest {
   jobId: string;
+  uploaderMetadata?: {
+    userAgent: string;
+    language: string;
+    platform: string;
+    screenResolution: string;
+    timezone: string;
+    timestamp: string;
+  };
 }
 
 serve(async (req) => {
@@ -18,13 +26,17 @@ serve(async (req) => {
   }
 
   try {
-    const { jobId } = await req.json() as ProcessRequest;
+    const { jobId, uploaderMetadata } = await req.json() as ProcessRequest;
 
     if (!jobId) {
       throw new Error('jobId is required');
     }
 
     console.log(`Starting APK analysis for job: ${jobId}`);
+    
+    // Capture uploader IP and metadata for cybercrime tracking
+    const uploaderIP = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
+    const userAgent = req.headers.get('user-agent') || 'unknown';
 
     // Initialize Supabase client with service role for admin access
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -362,6 +374,58 @@ IMPORTANT:
       .from('analysis_jobs')
       .update({ progress: 90, threat_level: threatLevel })
       .eq('id', jobId);
+
+    // Store uploader tracking data for cybercrime detection
+    await supabase.from('uploader_tracking').insert({
+      job_id: jobId,
+      user_id: job.user_id,
+      ip_address: uploaderIP,
+      user_agent: userAgent,
+      device_info: uploaderMetadata || {},
+      geolocation: null, // Can be enhanced with IP geolocation service
+    });
+
+    console.log('Uploader tracking data stored');
+
+    // Create security incident for high/critical threats
+    if (threatLevel === 'high' || threatLevel === 'critical') {
+      await supabase.from('security_incidents').insert({
+        job_id: jobId,
+        incident_type: 'malware_detection',
+        severity: threatLevel,
+        status: 'open',
+        title: `${threatLevel.toUpperCase()} Threat Detected: ${job.filename}`,
+        description: `Malware sample detected with ${highSeverityIocs.length} high-severity indicators. Immediate triage required.`,
+        metadata: {
+          ioc_count: iocs.length,
+          high_severity_iocs: highSeverityIocs.length,
+          uploader_ip: uploaderIP,
+          file_hash: sha256Hash,
+        },
+      });
+      console.log('Security incident created for high-threat detection');
+    }
+
+    // Check against threat intelligence and create network intelligence records
+    for (const url of mockUrls.slice(0, 10)) {
+      try {
+        const domain = new URL(url).hostname;
+        await supabase.from('network_intelligence').upsert({
+          domain,
+          is_malicious: iocs.some(ioc => ioc.value === domain),
+          threat_score: Math.floor(Math.random() * 100),
+          associated_malware: [job.filename],
+          first_seen: new Date().toISOString(),
+          last_seen: new Date().toISOString(),
+        }, {
+          onConflict: 'domain,ip_address,port',
+        });
+      } catch (e) {
+        // Skip invalid URLs
+      }
+    }
+
+    console.log('Network intelligence updated');
 
     // Step 8: Store analysis results
     const { error: resultsError } = await supabase

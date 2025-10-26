@@ -47,6 +47,16 @@ const UploadSection = ({ userId }: UploadSectionProps) => {
 
       if (uploadError) throw uploadError;
 
+      // Capture uploader metadata for cybercrime tracking
+      const uploaderMetadata = {
+        userAgent: navigator.userAgent,
+        language: navigator.language,
+        platform: navigator.platform,
+        screenResolution: `${window.screen.width}x${window.screen.height}`,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        timestamp: new Date().toISOString()
+      };
+
       // Create analysis job
       const { data, error: jobError } = await supabase
         .from('analysis_jobs')
@@ -67,9 +77,12 @@ const UploadSection = ({ userId }: UploadSectionProps) => {
       toast.success('APK uploaded successfully! Analysis starting...');
       setUploadProgress(0);
       
-      // Trigger background analysis pipeline
+      // Trigger background analysis pipeline with uploader metadata
       const { data: functionData, error: functionError } = await supabase.functions.invoke('process-apk', {
-        body: { jobId: jobData.id }
+        body: { 
+          jobId: jobData.id,
+          uploaderMetadata 
+        }
       });
 
       if (functionError) {

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { User, Session } from '@supabase/supabase-js';
 import { Button } from '@/components/ui/button';
-import { Shield, Upload, LogOut, FileText } from 'lucide-react';
+import { Shield, Upload, LogOut, FileText, Activity } from 'lucide-react';
 import { toast } from 'sonner';
 import UploadSection from '@/components/UploadSection';
 import JobsList from '@/components/JobsList';
@@ -99,6 +99,10 @@ const Dashboard = () => {
           <div className="flex items-center space-x-2">
             {roles.includes('admin') && (
               <>
+                <Button variant="outline" size="sm" onClick={() => navigate('/monitoring')}>
+                  <Activity className="w-4 h-4 mr-2" />
+                  Live Monitoring
+                </Button>
                 <Button variant="outline" size="sm" onClick={() => navigate('/admin')}>
                   Admin Panel
                 </Button>

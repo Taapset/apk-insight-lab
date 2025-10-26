@@ -6,6 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Shield, Users, Activity, Database, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
+import ThreatActorProfile from '@/components/ThreatActorProfile';
+import NetworkIntelligence from '@/components/NetworkIntelligence';
 
 const Admin = () => {
   const navigate = useNavigate();
@@ -191,6 +193,8 @@ const Admin = () => {
         <Tabs defaultValue="info" className="w-full">
           <TabsList>
             <TabsTrigger value="info">System Info</TabsTrigger>
+            <TabsTrigger value="threats">Threat Intel</TabsTrigger>
+            <TabsTrigger value="network">Network Intel</TabsTrigger>
             <TabsTrigger value="config">Configuration</TabsTrigger>
             <TabsTrigger value="docs">Documentation</TabsTrigger>
           </TabsList>
@@ -235,6 +239,14 @@ const Admin = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="threats">
+            <ThreatActorProfile />
+          </TabsContent>
+
+          <TabsContent value="network">
+            <NetworkIntelligence />
           </TabsContent>
 
           <TabsContent value="config">
