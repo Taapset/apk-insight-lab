@@ -29,7 +29,7 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -39,13 +39,18 @@ const Auth = () => {
 
       if (error) throw error;
 
-      // Create analyst role for new user
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        await supabase.from('user_roles').insert({
-          user_id: session.user.id,
+      // Create analyst role for new user - wait for session first
+      if (data.user) {
+        const { error: roleError } = await supabase.from('user_roles').insert({
+          user_id: data.user.id,
           role: 'analyst',
         });
+
+        if (roleError) {
+          console.error('Failed to create role:', roleError);
+          // Don't block signup, but log the error
+          toast.error('Account created but role assignment failed. Contact admin.');
+        }
       }
 
       toast.success('Account created successfully!');
