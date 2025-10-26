@@ -1,1 +1,4 @@
 project_id = "omtfesefipenrtvtynrl"
+
+[functions.process-apk]
+verify_jwt = false

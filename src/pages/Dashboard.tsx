@@ -98,9 +98,14 @@ const Dashboard = () => {
           </div>
           <div className="flex items-center space-x-2">
             {roles.includes('admin') && (
-              <span className="px-3 py-1 bg-warning/20 text-warning text-xs font-semibold rounded-full">
-                ADMIN
-              </span>
+              <>
+                <Button variant="outline" size="sm" onClick={() => navigate('/admin')}>
+                  Admin Panel
+                </Button>
+                <span className="px-3 py-1 bg-warning/20 text-warning text-xs font-semibold rounded-full">
+                  ADMIN
+                </span>
+              </>
             )}
             <Button variant="outline" size="sm" onClick={handleSignOut}>
               <LogOut className="w-4 h-4 mr-2" />

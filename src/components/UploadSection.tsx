@@ -48,7 +48,7 @@ const UploadSection = ({ userId }: UploadSectionProps) => {
       if (uploadError) throw uploadError;
 
       // Create analysis job
-      const { error: jobError } = await supabase
+      const { data, error: jobError } = await supabase
         .from('analysis_jobs')
         .insert({
           user_id: userId,
@@ -57,15 +57,27 @@ const UploadSection = ({ userId }: UploadSectionProps) => {
           storage_path: filePath,
           status: 'pending',
           progress: 0,
-        });
+        })
+        .select();
 
       if (jobError) throw jobError;
 
-      toast.success('APK uploaded successfully! Analysis queued.');
+      const jobData = data[0]; // Get the inserted job
+
+      toast.success('APK uploaded successfully! Analysis starting...');
       setUploadProgress(0);
       
-      // TODO: Trigger background analysis pipeline
-      // This would call an edge function to start the analysis
+      // Trigger background analysis pipeline
+      const { data: functionData, error: functionError } = await supabase.functions.invoke('process-apk', {
+        body: { jobId: jobData.id }
+      });
+
+      if (functionError) {
+        console.error('Failed to trigger analysis:', functionError);
+        toast.error('Analysis queued but processing failed to start. Check logs.');
+      } else {
+        console.log('Analysis started:', functionData);
+      }
     } catch (error: any) {
       console.error('Upload error:', error);
       toast.error(error.message || 'Failed to upload file');
