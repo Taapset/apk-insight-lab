@@ -4,11 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Download, Shield, AlertTriangle, FileText, Network, Clock } from 'lucide-react';
+import { ArrowLeft, Download, Shield, AlertTriangle, FileText, Network, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import IOCPanel from '@/components/IOCPanel';
 import TimelineVisualization from '@/components/TimelineVisualization';
 import NetworkGraph from '@/components/NetworkGraph';
+import ReactMarkdown from 'react-markdown';
 
 interface JobDetailsProps {
   jobId: string;
@@ -118,13 +119,88 @@ const JobDetails = ({ jobId, onBack }: JobDetailsProps) => {
         </div>
       </div>
 
+      {/* Risk Meter */}
+      {job.threat_level && (
+        <Card className="border-2">
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              {job.threat_level === 'safe' || job.threat_level === 'low' ? (
+                <CheckCircle className="w-6 h-6 text-success" />
+              ) : job.threat_level === 'medium' ? (
+                <AlertCircle className="w-6 h-6 text-warning" />
+              ) : (
+                <XCircle className="w-6 h-6 text-destructive" />
+              )}
+              <span>Security Assessment</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-lg font-semibold">Threat Level:</span>
+                <Badge 
+                  className={`
+                    capitalize text-lg px-4 py-2
+                    ${job.threat_level === 'critical' ? 'bg-destructive text-destructive-foreground' : ''}
+                    ${job.threat_level === 'high' ? 'bg-danger text-danger-foreground' : ''}
+                    ${job.threat_level === 'medium' ? 'bg-warning text-warning-foreground' : ''}
+                    ${job.threat_level === 'low' ? 'bg-info text-info-foreground' : ''}
+                    ${job.threat_level === 'safe' ? 'bg-success text-success-foreground' : ''}
+                  `}
+                >
+                  {job.threat_level}
+                </Badge>
+              </div>
+              <div className="w-full bg-secondary rounded-full h-4">
+                <div 
+                  className={`h-4 rounded-full transition-all ${
+                    job.threat_level === 'safe' ? 'w-[20%] bg-success' :
+                    job.threat_level === 'low' ? 'w-[40%] bg-info' :
+                    job.threat_level === 'medium' ? 'w-[60%] bg-warning' :
+                    job.threat_level === 'high' ? 'w-[80%] bg-danger' :
+                    'w-[100%] bg-destructive'
+                  }`}
+                />
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {job.threat_level === 'safe' || job.threat_level === 'low' 
+                  ? '✅ This app appears to be safe to use'
+                  : job.threat_level === 'medium'
+                  ? '⚠️ This app has some concerning behaviors - review carefully'
+                  : '🚨 This app has serious security concerns - use with extreme caution'}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Full Analysis Report with Markdown Rendering */}
+      {results?.markdown_report && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <FileText className="w-5 h-5" />
+              <span>Complete Analysis Report</span>
+            </CardTitle>
+            <CardDescription>
+              Comprehensive breakdown in simple, easy-to-understand language
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="prose prose-sm max-w-none dark:prose-invert">
+              <ReactMarkdown>{results.markdown_report}</ReactMarkdown>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Executive Summary */}
       {results?.executive_summary && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <Shield className="w-5 h-5" />
-              <span>Executive Summary</span>
+              <span>Quick Summary</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -257,22 +333,6 @@ const JobDetails = ({ jobId, onBack }: JobDetailsProps) => {
         </TabsContent>
       </Tabs>
 
-      {/* Markdown Report */}
-      {results?.markdown_report && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <FileText className="w-5 h-5" />
-              <span>Full Report</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <pre className="text-xs whitespace-pre-wrap bg-secondary/30 p-4 rounded-lg">
-              {results.markdown_report}
-            </pre>
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 };

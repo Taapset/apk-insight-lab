@@ -232,23 +232,69 @@ serve(async (req) => {
       iocs: iocs,
     };
 
-    const aiPrompt = `You are a senior security analyst. Analyze this Android APK and provide:
+    const aiPrompt = `You are a security analyst explaining findings to a complete beginner. Analyze this Android APK and provide an EXTENSIVE, DETAILED breakdown that even a 10-year-old can understand.
 
-1. Executive Summary (2-3 sentences for non-technical stakeholders)
-2. Technical Findings (detailed security issues found)
-3. Triage Recommendations (prioritized action items)
+STRUCTURE YOUR RESPONSE EXACTLY AS FOLLOWS:
+
+## 🎯 Simple Answer (Good or Bad?)
+Start with ONE clear sentence: "This app is [SAFE/SUSPICIOUS/DANGEROUS] because..." Use simple language like you're talking to a kid.
+
+## 📊 Executive Summary
+Provide 4-5 sentences explaining what this app does and whether it's trustworthy. Use analogies and simple comparisons. Avoid technical jargon.
+
+## 🔍 What We Found (Detailed Breakdown)
+Break down EVERY finding into simple terms:
+
+### Permissions Analysis
+For EACH permission found, explain:
+- What it does in kid-friendly terms (e.g., "This is like giving someone the key to your diary")
+- Why the app might need it
+- Whether it's normal or suspicious
+- Risk level: 🟢 Safe / 🟡 Careful / 🔴 Danger
+
+### Data Collection
+Explain what data this app might collect and why that matters. Use everyday examples.
+
+### Network Activity
+Describe where this app sends information. Use analogies like "This is like sending letters to different addresses."
+
+### Suspicious Behavior
+List ANY suspicious patterns found, explaining each one like you're teaching a child about stranger danger.
+
+## ⚠️ Red Flags Found
+List ALL concerning behaviors in simple bullet points. For each red flag, explain:
+- What it is
+- Why it's concerning
+- What it could mean for the user
+
+## ✅ Good Things Found
+List positive security features or normal behaviors. Be specific and encouraging when the app does things right.
+
+## 🎓 Technical Findings
+Now provide detailed technical analysis for security professionals:
+- List ALL security vulnerabilities
+- Code quality issues
+- API security concerns
+- Encryption analysis
+- Certificate validation
+
+## 🚨 Triage Recommendations
+Provide clear, actionable steps prioritized by urgency:
+1. IMMEDIATE actions needed
+2. SHORT-TERM recommendations
+3. LONG-TERM monitoring suggestions
 
 APK Analysis Data:
 ${JSON.stringify(analysisContext, null, 2)}
 
-Focus on:
-- Privacy concerns (permissions, data collection)
-- Security vulnerabilities
-- Suspicious network activity
-- Malicious indicators
-- Risk assessment
-
-Provide a comprehensive security assessment.`;
+IMPORTANT:
+- Use emojis to make it engaging and visual
+- Explain EVERYTHING like teaching a child
+- Don't skip any findings - be thorough
+- Use analogies and real-world examples
+- Be honest about risks without being overly technical
+- Make it comprehensive - at least 1500 words
+- Structure with clear headers as shown above`;
 
     const aiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -257,8 +303,8 @@ Provide a comprehensive security assessment.`;
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini', // Cheapest OpenAI model
-        max_tokens: 1500,
+        model: 'gpt-4o-mini',
+        max_tokens: 4000, // Increased for extensive analysis
         temperature: 0.7,
         messages: [
           {
